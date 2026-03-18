@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package authorization;
+
+option go_package = "grpc/contracts/authorization;authorizationpb";
+
+service AuthorizationService {
+  rpc RegisterAccount(RegisterAccountRequest) returns (RegisterAccountResponse);
+  rpc LoginAccount(LoginAccountRequest) returns (LoginAccountResponse);
+  rpc MyAccount(MyAccountRequest) returns (MyAccountResponse);
+  rpc Refresh(RefreshRequest) returns (RefreshResponse);
+  rpc Logout(LogoutRequest) returns (LogoutResponse);
+}
+
+message RegisterAccountRequest {
+  string email = 1;
+  string password = 2;
+  string display_name = 3;
+}
+
+message RegisterAccountResponse {
+  int64 account_id = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message LoginAccountRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginAccountResponse {
+  int64 account_id = 1;
+  string access_token = 2;
+  string refresh_token = 3;
+}
+
+message MyAccountRequest {
+  string access_token = 1;
+}
+
+message MyAccountResponse {
+  int64 account_id = 1;
+  string email = 2;
+  string display_name = 3;
+}
+
+message RefreshRequest {
+  string refresh_token = 1;
+}
+
+message RefreshResponse {
+  string access_token = 1;
+  string refresh_token = 2;
+}
+
+message LogoutRequest {
+  string refresh_token = 1;
+}
+
+message LogoutResponse {
+  bool success = 1;
+}
