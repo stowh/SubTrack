@@ -1,0 +1,42 @@
+services:
+  gateway:
+    build: ./services/api-gateway
+    container_name: subGateway
+    ports:
+      - 8080:80
+      - 9090:90
+    env_file:
+      - .env
+    depends_on:
+      - authorization
+      - subscribes
+  
+  authorization:
+    build: ./services/authorization-service
+    container_name: subAuth
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  subscribes:
+    build: ./services/subscribe-service
+    container_name: subSubscribes
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    container_name: subPostgres
+    restart: always
+    environment:
+      POSTGRES_USER: "${postgres_user}"
+      POSTGRES_PASSWORD: "${postgres_pass}"
+      POSTGRES_DB: "${postgres_name}"
+    volumes:
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data:

@@ -19,10 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AnalyticsService_TrackEvent_FullMethodName     = "/analytics.AnalyticsService/TrackEvent"
-	AnalyticsService_GetMetrics_FullMethodName     = "/analytics.AnalyticsService/GetMetrics"
-	AnalyticsService_GetTimeSeries_FullMethodName  = "/analytics.AnalyticsService/GetTimeSeries"
-	AnalyticsService_GetTopEntities_FullMethodName = "/analytics.AnalyticsService/GetTopEntities"
+	AnalyticsService_TrackEvent_FullMethodName = "/analytics.AnalyticsService/TrackEvent"
+	AnalyticsService_GetEvents_FullMethodName  = "/analytics.AnalyticsService/GetEvents"
+	AnalyticsService_GetMetrics_FullMethodName = "/analytics.AnalyticsService/GetMetrics"
 )
 
 // AnalyticsServiceClient is the client API for AnalyticsService service.
@@ -30,9 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AnalyticsServiceClient interface {
 	TrackEvent(ctx context.Context, in *TrackEventRequest, opts ...grpc.CallOption) (*TrackEventResponse, error)
+	GetEvents(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error)
 	GetMetrics(ctx context.Context, in *GetMetricsRequest, opts ...grpc.CallOption) (*GetMetricsResponse, error)
-	GetTimeSeries(ctx context.Context, in *GetTimeSeriesRequest, opts ...grpc.CallOption) (*GetTimeSeriesResponse, error)
-	GetTopEntities(ctx context.Context, in *GetTopEntitiesRequest, opts ...grpc.CallOption) (*GetTopEntitiesResponse, error)
 }
 
 type analyticsServiceClient struct {
@@ -53,30 +51,20 @@ func (c *analyticsServiceClient) TrackEvent(ctx context.Context, in *TrackEventR
 	return out, nil
 }
 
+func (c *analyticsServiceClient) GetEvents(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEventsResponse)
+	err := c.cc.Invoke(ctx, AnalyticsService_GetEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *analyticsServiceClient) GetMetrics(ctx context.Context, in *GetMetricsRequest, opts ...grpc.CallOption) (*GetMetricsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetMetricsResponse)
 	err := c.cc.Invoke(ctx, AnalyticsService_GetMetrics_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *analyticsServiceClient) GetTimeSeries(ctx context.Context, in *GetTimeSeriesRequest, opts ...grpc.CallOption) (*GetTimeSeriesResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetTimeSeriesResponse)
-	err := c.cc.Invoke(ctx, AnalyticsService_GetTimeSeries_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *analyticsServiceClient) GetTopEntities(ctx context.Context, in *GetTopEntitiesRequest, opts ...grpc.CallOption) (*GetTopEntitiesResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetTopEntitiesResponse)
-	err := c.cc.Invoke(ctx, AnalyticsService_GetTopEntities_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -88,9 +76,8 @@ func (c *analyticsServiceClient) GetTopEntities(ctx context.Context, in *GetTopE
 // for forward compatibility.
 type AnalyticsServiceServer interface {
 	TrackEvent(context.Context, *TrackEventRequest) (*TrackEventResponse, error)
+	GetEvents(context.Context, *GetEventsRequest) (*GetEventsResponse, error)
 	GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error)
-	GetTimeSeries(context.Context, *GetTimeSeriesRequest) (*GetTimeSeriesResponse, error)
-	GetTopEntities(context.Context, *GetTopEntitiesRequest) (*GetTopEntitiesResponse, error)
 	mustEmbedUnimplementedAnalyticsServiceServer()
 }
 
@@ -104,14 +91,11 @@ type UnimplementedAnalyticsServiceServer struct{}
 func (UnimplementedAnalyticsServiceServer) TrackEvent(context.Context, *TrackEventRequest) (*TrackEventResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TrackEvent not implemented")
 }
+func (UnimplementedAnalyticsServiceServer) GetEvents(context.Context, *GetEventsRequest) (*GetEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEvents not implemented")
+}
 func (UnimplementedAnalyticsServiceServer) GetMetrics(context.Context, *GetMetricsRequest) (*GetMetricsResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetMetrics not implemented")
-}
-func (UnimplementedAnalyticsServiceServer) GetTimeSeries(context.Context, *GetTimeSeriesRequest) (*GetTimeSeriesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetTimeSeries not implemented")
-}
-func (UnimplementedAnalyticsServiceServer) GetTopEntities(context.Context, *GetTopEntitiesRequest) (*GetTopEntitiesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetTopEntities not implemented")
 }
 func (UnimplementedAnalyticsServiceServer) mustEmbedUnimplementedAnalyticsServiceServer() {}
 func (UnimplementedAnalyticsServiceServer) testEmbeddedByValue()                          {}
@@ -152,6 +136,24 @@ func _AnalyticsService_TrackEvent_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AnalyticsService_GetEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AnalyticsServiceServer).GetEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AnalyticsService_GetEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AnalyticsServiceServer).GetEvents(ctx, req.(*GetEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AnalyticsService_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMetricsRequest)
 	if err := dec(in); err != nil {
@@ -170,42 +172,6 @@ func _AnalyticsService_GetMetrics_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AnalyticsService_GetTimeSeries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTimeSeriesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AnalyticsServiceServer).GetTimeSeries(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AnalyticsService_GetTimeSeries_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnalyticsServiceServer).GetTimeSeries(ctx, req.(*GetTimeSeriesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AnalyticsService_GetTopEntities_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTopEntitiesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AnalyticsServiceServer).GetTopEntities(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AnalyticsService_GetTopEntities_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnalyticsServiceServer).GetTopEntities(ctx, req.(*GetTopEntitiesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // AnalyticsService_ServiceDesc is the grpc.ServiceDesc for AnalyticsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -218,16 +184,12 @@ var AnalyticsService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AnalyticsService_TrackEvent_Handler,
 		},
 		{
+			MethodName: "GetEvents",
+			Handler:    _AnalyticsService_GetEvents_Handler,
+		},
+		{
 			MethodName: "GetMetrics",
 			Handler:    _AnalyticsService_GetMetrics_Handler,
-		},
-		{
-			MethodName: "GetTimeSeries",
-			Handler:    _AnalyticsService_GetTimeSeries_Handler,
-		},
-		{
-			MethodName: "GetTopEntities",
-			Handler:    _AnalyticsService_GetTopEntities_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
